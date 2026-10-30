@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 ACCENT = "#0078D4"
 ACCENT_PRESSED = "#005A9E"
 SURFACE = "#F3F6FB"

@@ -1,0 +1,61 @@
+name: Nightly ISO
+
+on:
+  schedule:
+    # 18:00 UTC == 02:00 CST the next calendar day.
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Attach the ISO to a pre-release on GitHub
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install build toolchain
+        run: |
+          pacman -Syu --noconfirm --needed \
+            archiso rsync librsvg grub fontconfig freetype2 bash
+          pacman-key --init
+          pacman-key --populate archlinux
+
+      - name: Build ISO
+        run: ./build.sh
+
+      - name: Locate artifacts
+        id: artifacts
+        run: |
+          iso=$(find build/out -name '*.iso' | head -n1)
+          echo "iso=${iso}" >> "$GITHUB_OUTPUT"
+          ls -lh build/out
+
+      - name: Upload ISO as build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xuanos-nightly
+          path: |
+            build/out/*.iso
+            build/out/SHA256SUMS.txt
+          retention-days: 14
+
+      - name: Publish nightly pre-release
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_release
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: true
+          name: xuan OS nightly
+          files: |
+            build/out/*.iso
+            build/out/SHA256SUMS.txt

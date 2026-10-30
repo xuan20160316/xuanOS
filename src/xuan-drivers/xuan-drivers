@@ -1,0 +1,196 @@
+#!/usr/bin/env bash
+#
+# xuan-drivers — hardware detection and driver installation for xuan OS.
+# Recommends open-source drivers by default and only offers proprietary
+# blobs where the hardware vendor does not provide a usable open alternative.
+#
+set -euo pipefail
+
+readonly DRIVERS_VERSION="1.1.0"
+
+if [[ -t 1 ]]; then
+    C_RESET=$'\033[0m'; C_BLUE=$'\033[38;5;32m'; C_GREEN=$'\033[38;5;35m'
+    C_YELLOW=$'\033[38;5;214m'; C_RED=$'\033[38;5;196m'; C_BOLD=$'\033[1m'
+else
+    C_RESET=""; C_BLUE=""; C_GREEN=""; C_YELLOW=""; C_RED=""; C_BOLD=""
+fi
+
+log()  { printf '%s%s%s\n' "$C_BLUE" "$*" "$C_RESET"; }
+ok()   { printf '%s%s%s\n' "$C_GREEN" "$*" "$C_RESET"; }
+warn() { printf '%s%s%s\n' "$C_YELLOW" "$*" "$C_RESET" >&2; }
+die()  { printf '%s%s%s\n' "$C_RED" "$*" "$C_RESET" >&2; exit 1; }
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+lspci_lines() {
+    have lspci || { warn "lspci not found (install pciutils)"; return 0; }
+    lspci 2>/dev/null || true
+}
+
+# ---------------------------------------------------------------- detection
+detect_gpu() {
+    local line lowered
+    while IFS= read -r line; do
+        lowered="$(printf '%s' "$line" | tr '[:upper:]' '[:lower:]')"
+        case "$lowered" in
+            *vga*|*3d\ controller*|*display\ controller*)
+                if [[ "$lowered" == *nvidia* ]]; then
+                    echo "nvidia|${line#*: }"
+                elif [[ "$lowered" == *amd* || "$lowered" == *radeon* || "$lowered" == *"[ati]"* ]]; then
+                    echo "amd|${line#*: }"
+                elif [[ "$lowered" == *intel* ]]; then
+                    echo "intel|${line#*: }"
+                else
+                    echo "other|${line#*: }"
+                fi
+                ;;
+        esac
+    done < <(lspci_lines)
+}
+
+detect_network() {
+    local line lowered
+    while IFS= read -r line; do
+        lowered="$(printf '%s' "$line" | tr '[:upper:]' '[:lower:]')"
+        case "$lowered" in
+            *ethernet\ controller*|*network\ controller*) echo "${line#*: }" ;;
+        esac
+    done < <(lspci_lines)
+    if have lsusb; then
+        lsusb 2>/dev/null | grep -iE 'wireless|wifi|bluetooth|network' || true
+    fi
+}
+
+detect_audio() {
+    lspci_lines | grep -i 'audio device' || true
+}
+
+detect_printers() {
+    if have lpinfo; then
+        lpinfo -v 2>/dev/null | grep -i 'usb' || true
+    fi
+    if have lsusb; then
+        lsusb 2>/dev/null | grep -iE 'printer|hp |canon|epson|brother' || true
+    fi
+}
+
+# ---------------------------------------------------------------- recommendations
+gpu_packages() {
+    case "$1" in
+        nvidia)
+            # Prefer the open NVIDIA kernel module where supported.
+            echo "nvidia nvidia-utils lib32-nvidia-utils nvidia-settings"
+            ;;
+        amd)
+            echo "mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon libva-mesa-driver lib32-libva-mesa-driver"
+            ;;
+        intel)
+            echo "mesa lib32-mesa vulkan-intel lib32-vulkan-intel intel-media-driver"
+            ;;
+        other)
+            echo "mesa lib32-mesa"
+            ;;
+    esac
+}
+
+recommend() {
+    local entry type label
+    log "Hardware summary"
+    echo
+    while IFS= read -r entry; do
+        type="${entry%%|*}"; label="${entry#*|}"
+        printf ' GPU [%s]: %s\n' "$type" "$label"
+    done < <(detect_gpu)
+
+    while IFS= read -r line; do [[ -n "$line" ]] && printf ' Network: %s\n' "$line"; done < <(detect_network)
+    while IFS= read -r line; do [[ -n "$line" ]] && printf ' Audio: %s\n' "$line"; done < <(detect_audio)
+    while IFS= read -r line; do [[ -n "$line" ]] && printf ' Printer: %s\n' "$line"; done < <(detect_printers)
+
+    echo
+    log "Recommended driver packages"
+    local seen=""
+    while IFS= read -r entry; do
+        type="${entry%%|*}"
+        while IFS=' ' read -r -a pkgs; do
+            for p in "${pkgs[@]}"; do
+                if [[ " $seen " != *" $p "* ]]; then
+                    printf '  %s\n' "$p"; seen="$seen $p"
+                fi
+            done
+        done < <(gpu_packages "$type")
+    done < <(detect_gpu)
+    cat <<'EOF'
+  Common:  cups system-config-printer (printing), bluez bluez-utils (Bluetooth)
+EOF
+}
+
+# ---------------------------------------------------------------- installation
+elevate() {
+    if (( EUID == 0 )); then
+        return 0
+    fi
+    if have pkexec; then
+        exec pkexec "$0" "$@"
+    fi
+    exec sudo -E "$0" "$@"
+}
+
+install_drivers() {
+    elevate "$@"
+    local targets=() entry type
+    while IFS= read -r entry; do
+        type="${entry%%|*}"
+        while IFS=' ' read -r -a pkgs; do
+            for p in "${pkgs[@]}"; do targets+=("$p"); done
+        done < <(gpu_packages "$type")
+    done < <(detect_gpu)
+
+    if (( ${#targets[@]} == 0 )); then
+        die "No supported GPU detected; nothing to install."
+    fi
+
+    log "Installing: ${targets[*]}"
+    pacman -S --needed --noconfirm "${targets[@]}"
+
+    echo
+    log "Verifying acceleration"
+    if have glxinfo; then
+        glxinfo -B 2>/dev/null | grep -E 'OpenGL renderer|OpenGL vendor' || warn "glxinfo unavailable"
+    fi
+    if have vulkaninfo; then
+        vulkaninfo --summary 2>/dev/null | grep -E 'deviceName|driverName' || true
+    fi
+    ok "Driver installation complete. Reboot if a kernel module was updated."
+}
+
+usage() {
+    cat <<EOF
+${C_BOLD}xuan-drivers${C_RESET} ${DRIVERS_VERSION}
+
+Usage: xuan-drivers <command>
+
+Commands:
+  detect     List detected GPU, network, audio and printer hardware
+  recommend  Show hardware and the matching driver packages
+  install    Install recommended GPU drivers (elevates via pkexec/sudo)
+  version    Print version
+  help       Show this help
+EOF
+}
+
+main() {
+    local cmd="${1:-help}"
+    [[ $# -gt 0 ]] && shift || true
+    case "$cmd" in
+        detect)
+            log "Detected hardware"; echo
+            detect_gpu; detect_network; detect_audio; detect_printers ;;
+        recommend) recommend ;;
+        install)   install_drivers "$@" ;;
+        version)   echo "xuan-drivers ${DRIVERS_VERSION}" ;;
+        help|-h|--help) usage ;;
+        *) die "Unknown command: ${cmd}" ;;
+    esac
+}
+
+main "$@"

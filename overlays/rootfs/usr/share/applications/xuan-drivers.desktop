@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Driver Manager
+Name[zh_CN]=驱动管理器
+Exec=konsole -e xuan-drivers recommend
+Icon=preferences-desktop-display
+Terminal=false
+Categories=System;Settings;

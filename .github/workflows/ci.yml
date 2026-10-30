@@ -1,0 +1,30 @@
+name: Static checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  static-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Refresh keyring and install test dependencies
+        run: |
+          pacman -Syu --noconfirm --needed \
+            bash python-yaml shellcheck libxml2 pciutils coreutils findutils
+          pacman-key --init
+          pacman-key --populate archlinux
+
+      - name: Run static validation suite
+        run: ./tests/run_tests.sh
+
+      - name: Verify shell scripts pass ShellCheck
+        run: shellcheck -x -S warning $(find . -type f \( -name '*.sh' -o -name 'xuan-ctl' -o -name 'xuan-winrun' -o -name 'xuan-drivers' \) -not -path './.git/*')

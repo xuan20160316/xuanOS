@@ -5,9 +5,10 @@
 #
 set -euo pipefail
 
-readonly XUAN_CTL_VERSION="1.0.0"
+readonly XUAN_CTL_VERSION="1.1.0"
 readonly CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/xuanos"
 readonly LOG_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/xuanos/logs"
+ORIGINAL_ARGS=()
 
 # ---------------------------------------------------------------- output helpers
 if [[ -t 1 ]]; then
@@ -25,7 +26,7 @@ die()  { printf '%s%s%s\n' "$C_RED" "$*" "$C_RESET" >&2; exit 1; }
 need_root() {
     if (( EUID != 0 )); then
         warn "This operation requires administrator privileges, requesting sudo..."
-        exec sudo -E "$0" "$@"
+        exec sudo -E "$0" "${ORIGINAL_ARGS[@]}"
     fi
 }
 
@@ -175,6 +176,87 @@ cmd_firewall() {
     ufw status verbose
 }
 
+cmd_services() {
+    local action="${1:-list}"
+    local unit="${2:-}"
+    case "$action" in
+        list)
+            systemctl list-unit-files --type=service --no-pager
+            ;;
+        active)
+            systemctl list-units --type=service --state=running --no-pager
+            ;;
+        failed)
+            systemctl --failed --no-pager
+            ;;
+        status)
+            [[ -n "$unit" ]] || die "Usage: xuan-ctl services status <unit>"
+            systemctl status "$unit" --no-pager
+            ;;
+        enable|disable|start|stop|restart)
+            [[ -n "$unit" ]] || die "Usage: xuan-ctl services $action <unit>"
+            need_root
+            systemctl "$action" "$unit"
+            ok "service ${action}: ${unit}"
+            ;;
+        *)
+            die "Usage: xuan-ctl services {list|active|failed|status|enable|disable|start|stop|restart} [unit]"
+            ;;
+    esac
+}
+
+cmd_snapshot() {
+    if ! findmnt -nt btrfs / >/dev/null 2>&1; then
+        die "Root is not btrfs. Snapshot commands require a btrfs root filesystem."
+    fi
+    local action="${1:-list}"
+    case "$action" in
+        list)
+            btrfs subvolume list /
+            ;;
+        create)
+            need_root
+            local stamp target
+            stamp="$(date +%Y%m%d-%H%M%S)"
+            target="/.snapshots/${stamp}"
+            install -d /.snapshots
+            btrfs subvolume snapshot / "$target"
+            ok "snapshot created: ${target}"
+            ;;
+        delete)
+            local path="${2:-}"
+            [[ -n "$path" ]] || die "Usage: xuan-ctl snapshot delete <snapshot-path>"
+            need_root
+            btrfs subvolume delete "$path"
+            ok "snapshot deleted: ${path}"
+            ;;
+        *)
+            die "Usage: xuan-ctl snapshot {list|create|delete}"
+            ;;
+    esac
+}
+
+cmd_power() {
+    have_power=0
+    command -v powerprofilesctl >/dev/null && have_power=1
+    local action="${1:-status}"
+    if (( have_power == 0 )); then
+        die "powerprofilesctl not available (install power-profiles-daemon)."
+    fi
+    case "$action" in
+        status)
+            powerprofilesctl
+            ;;
+        performance|balanced|power-saver)
+            powerprofilesctl set "$action"
+            ok "power profile set to: ${action}"
+            ;;
+        *)
+            die "Usage: xuan-ctl power {status|performance|balanced|power-saver}"
+            ;;
+    esac
+}
+
 usage() {
     cat <<EOF
 ${C_BOLD}xuan-ctl${C_RESET} ${XUAN_CTL_VERSION} — xuan OS management
@@ -182,19 +264,23 @@ ${C_BOLD}xuan-ctl${C_RESET} ${XUAN_CTL_VERSION} — xuan OS management
 Usage: xuan-ctl <command>
 
 Commands:
-  update     Refresh mirrors and upgrade every package
-  clean      Remove orphans, trim caches and old journals
-  mirror     Re-rank download mirrors by speed
-  info       Show a compact system overview
-  wine ...   Manage the Wine prefix: init | reset | shell
-  firewall   Show firewall status and rules
-  doctor     Run health checks and report misconfiguration
-  version    Print version information
-  help       Show this help
+  update      Refresh mirrors and upgrade every package
+  clean       Remove orphans, trim caches and old journals
+  mirror      Re-rank download mirrors by speed
+  info        Show a compact system overview
+  wine ...    Manage the Wine prefix: init | reset | shell
+  firewall    Show firewall status and rules
+  services... Manage systemd units: list | active | status | enable | disable ...
+  snapshot... Btrfs snapshots: list | create | delete
+  power ...   Power profiles: status | performance | balanced | power-saver
+  doctor      Run health checks and report misconfiguration
+  version     Print version information
+  help        Show this help
 EOF
 }
 
 main() {
+    ORIGINAL_ARGS=("$@")
     mkdir -p "$CONFIG_DIR" "$LOG_DIR"
     local cmd="${1:-help}"
     [[ $# -gt 0 ]] && shift || true
@@ -206,6 +292,9 @@ main() {
         wine)     cmd_wine "$@" ;;
         doctor)   cmd_doctor ;;
         firewall) cmd_firewall "$@" ;;
+        services) cmd_services "$@" ;;
+        snapshot) cmd_snapshot "$@" ;;
+        power)    cmd_power "$@" ;;
         version)  echo "xuan-ctl ${XUAN_CTL_VERSION}" ;;
         help|-h|--help) usage ;;
         *) die "Unknown command: ${cmd}. Run 'xuan-ctl help'." ;;

@@ -1,20 +1,22 @@
 # 开发路线图
 
-## 阶段 0：两天 MVP（当前）
+## 阶段 0：两天 MVP（已完成）
 
-- 可复现的 archiso 构建工程与一键 `build.sh`
-- KDE Plasma 6 的 Windows 11 风格布局与品牌主题
-- Wine / Bottles / Proton 集成与 `xuan-winrun` 关联
-- `xuan-ctl` 基础管理命令与 PySide6 欢迎中心
-- Calamares 图形安装与静态测试套件
+- [x] 可复现的 archiso 构建工程与一键 `build.sh`
+- [x] KDE Plasma 6 的 Windows 11 风格布局与品牌主题
+- [x] Wine / Bottles / Proton 集成与 `xuan-winrun` 关联
+- [x] `xuan-ctl` 基础管理命令与 PySide6 欢迎中心
+- [x] Calamares 图形安装与静态测试套件
 
-## 阶段 1：稳定化（1-2 个月）
+## 阶段 1：稳定化（进行中）
 
-- 建立 `xuanos-pkg` 源码包流水线，原创工具独立打包入库
-- 完善 Calamares 分区加密、LVM 与多盘场景测试
-- 补齐驱动安装向导：NVIDIA 专有驱动、打印机、无线网卡
-- 接入 CI：每次提交运行测试并产出 nightly ISO
-- 发布首个带签名的正式版本与升级说明
+- [x] 驱动安装向导 `xuan-drivers`：NVIDIA/AMD/Intel 与外设检测
+- [x] 接入 CI：提交触发静态检查，定时产出 nightly ISO
+- [x] Flatpak/Flathub 集成与初始化脚本
+- [x] Calamares 全套模块配置，支持 LUKS 加密与多文件系统
+- [ ] 建立 `xuanos-pkg` 源码包流水线，原创工具独立打包入库
+- [ ] 多盘、LVM 与加密分区的实机安装测试矩阵
+- [ ] 发布首个带签名的正式版本与升级说明
 
 ## 阶段 2：体验深化（3-6 个月）
 

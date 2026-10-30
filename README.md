@@ -34,10 +34,13 @@ xuan OS 采用开源世界验证过的正道——这与 SteamOS、Ubuntu、Pop!
 | 内核 | 滚动更新的 Linux 内核，安全补丁与硬件支持第一时间到达 |
 | 桌面 | Win11 风格居中任务栏、开始菜单、圆角窗口、强调色与模糊效果 |
 | Windows 兼容 | 双击 `.exe` 即经 Wine 运行；Bottles 管理多环境；Proton 支持游戏 |
-| 软件管理 | pacman 包管理 + 图形软件中心，官方签名仓库，可复现构建 |
+| 软件管理 | pacman 官方仓库 + Flatpak/Flathub，签名校验，可复现构建 |
+| 驱动管理 | `xuan-drivers` 检测 GPU/网卡/声卡，一键安装开源或专有驱动 |
+| 系统治理 | `xuan-ctl` 覆盖更新、服务、btrfs 快照、电源模式与健康体检 |
+| 工程化 | GitHub Actions 自动测试并构建 nightly ISO，全流程可审计 |
 | 安全 | 默认启用 ufw 防火墙、最小化权限、`arch-audit` 漏洞跟踪 |
 | 本地化 | 内置 Fcitx5 中文输入法、CJK 字体与中文欢迎中心 |
-| 安装 | Calamares 图形安装器，支持 UEFI / BIOS 双引导 |
+| 安装 | Calamares 图形安装器，支持 LUKS 加密、UEFI / BIOS 双引导 |
 
 ---
 
@@ -109,14 +112,16 @@ cd xuanos
 ```
 xuanos/
 ├── build.sh                 一键构建入口
+├── .github/workflows/       CI 静态检查与 nightly ISO 构建
 ├── iso-profile/             archiso 工程（包清单、pacman、chroot 脚本）
 ├── overlays/rootfs/         根文件系统覆盖层（桌面配置、品牌、主题）
 ├── src/
-│   ├── xuan-ctl/            系统管理 CLI
+│   ├── xuan-ctl/            系统管理 CLI（更新/服务/快照/电源）
 │   ├── xuan-winrun/         Windows 程序启动器
+│   ├── xuan-drivers/        硬件检测与驱动安装
 │   ├── xuan-welcome/        PySide6 欢迎中心
 │   └── calamares-settings/  图形安装器配置与品牌
-├── scripts/                 资源生成与 overlay 同步脚本
+├── scripts/                 资源生成、overlay 同步、Flatpak 初始化
 ├── tests/                   静态校验测试套件
 └── docs/                    架构、构建、路线图与安全文档
 ```

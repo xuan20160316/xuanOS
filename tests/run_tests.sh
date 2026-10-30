@@ -20,7 +20,7 @@ report() {
 }
 
 echo '==> Bash syntax'
-mapfile -t bash_scripts < <(find "$ROOT" -type f \( -name '*.sh' -o -name 'xuan-ctl' -o -name 'xuan-winrun' -o -name 'customize_airootfs.sh' -o -name 'profiledef.sh' \) -not -path '*/build/*')
+mapfile -t bash_scripts < <(find "$ROOT" -type f \( -name '*.sh' -o -name 'xuan-ctl' -o -name 'xuan-winrun' -o -name 'xuan-drivers' -o -name 'customize_airootfs.sh' -o -name 'profiledef.sh' \) -not -path '*/build/*' -not -path '*/.git/*')
 for script in "${bash_scripts[@]}"; do
     bash -n "$script"
     report $? "syntax: ${script#"$ROOT"/}"
@@ -69,7 +69,12 @@ required=(
     "overlays/rootfs/usr/share/sddm/themes/xuanos/Main.qml"
     "src/xuan-ctl/xuan-ctl"
     "src/xuan-winrun/xuan-winrun"
+    "src/xuan-drivers/xuan-drivers"
     "src/xuan-welcome/xuan_welcome.py"
+    "src/calamares-settings/modules/unpackfs.conf"
+    ".github/workflows/ci.yml"
+    ".github/workflows/nightly-iso.yml"
+    "scripts/flatpak-setup.sh"
     "LICENSE"
     "README.md"
 )
