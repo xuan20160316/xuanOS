@@ -1,0 +1,33 @@
+[General]
+ColorScheme=XuanOSLight
+Name=Inter
+fixed=JetBrains Mono
+smallestReadableFont=Inter,8,-1,5,50,0,0,0,0,0
+toolButtonStyle=4
+
+[KDE]
+AnimationDurationFactor=0.6
+SingleClick=false
+
+[Icons]
+Theme=breeze
+UseSystemIcons=true
+
+[KFileDialog Settings]
+AllowExpand=true
+ListviewMode=2
+LocationCombo Completionmode=5
+ShowBookmarks=true
+ShowPreview=false
+SortDirsFirst=true
+SortReversed=false
+ViewStyle=4
+
+[QtQuickControls]
+Style=org.kde.breeze
+
+[WM]
+activeBackground=0,120,212
+activeForeground=255,255,255
+inactiveBackground=239,240,242
+inactiveForeground=35,38,41

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=SddmTheme
+Name=xuanos
+Comment=xuan OS default login theme
+X-Sddm-Theme-Id=xuanos
+X-Sddm-Theme-Version=1.0

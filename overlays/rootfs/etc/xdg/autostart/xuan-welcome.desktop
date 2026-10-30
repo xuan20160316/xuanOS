@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=xuan OS Welcome Center
+Name[zh_CN]=xuan OS 欢迎中心
+GenericName=First-run setup assistant
+Exec=xuan-welcome
+Icon=xuanos-logo
+Terminal=false
+Categories=System;Settings;
+StartupNotify=true
+X-KDE-autostart-phase=2
+X-KDE-autostart-after=panel

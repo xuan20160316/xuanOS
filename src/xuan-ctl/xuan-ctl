@@ -1,0 +1,215 @@
+#!/usr/bin/env bash
+#
+# xuan-ctl — system management utility for xuan OS.
+# Wraps pacman, reflector, wine and ufw behind one predictable interface.
+#
+set -euo pipefail
+
+readonly XUAN_CTL_VERSION="1.0.0"
+readonly CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/xuanos"
+readonly LOG_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/xuanos/logs"
+
+# ---------------------------------------------------------------- output helpers
+if [[ -t 1 ]]; then
+    C_RESET=$'\033[0m'; C_BLUE=$'\033[38;5;32m'; C_GREEN=$'\033[38;5;35m'
+    C_YELLOW=$'\033[38;5;214m'; C_RED=$'\033[38;5;196m'; C_BOLD=$'\033[1m'
+else
+    C_RESET=""; C_BLUE=""; C_GREEN=""; C_YELLOW=""; C_RED=""; C_BOLD=""
+fi
+
+log()  { printf '%s%s%s\n' "$C_BLUE"  "$*" "$C_RESET"; }
+ok()   { printf '%s%s%s\n' "$C_GREEN" "$*" "$C_RESET"; }
+warn() { printf '%s%s%s\n' "$C_YELLOW" "$*" "$C_RESET" >&2; }
+die()  { printf '%s%s%s\n' "$C_RED" "$*" "$C_RESET" >&2; exit 1; }
+
+need_root() {
+    if (( EUID != 0 )); then
+        warn "This operation requires administrator privileges, requesting sudo..."
+        exec sudo -E "$0" "$@"
+    fi
+}
+
+pacman_running() {
+    pgrep -x pacman >/dev/null || pgrep -f 'mkarchiso' >/dev/null
+}
+
+# ---------------------------------------------------------------- commands
+cmd_update() {
+    need_root "$@"
+    pacman_running && die "Another package operation is in progress. Wait for it to finish."
+    log "Refreshing mirror list..."
+    local reflector_conf=/etc/xdg/reflector/reflector.conf
+    if [[ -f "$reflector_conf" ]]; then
+        mapfile -t reflector_args < <(grep -v '^\s*#' "$reflector_conf" | grep -v '^\s*$')
+        reflector "${reflector_args[@]}"
+    else
+        reflector --latest 10 --sort rate
+    fi
+    log "Synchronizing package databases and upgrading the system..."
+    pacman -Syu --noconfirm
+    ok "System is up to date."
+}
+
+cmd_clean() {
+    need_root "$@"
+    log "Removing orphaned packages..."
+    local orphans
+    orphans="$(pacman -Qdtq 2>/dev/null || true)"
+    if [[ -n "$orphans" ]]; then
+        # shellcheck disable=SC2086
+        pacman -Rns --noconfirm $orphans
+    else
+        ok "No orphan packages found."
+    fi
+    log "Clearing package cache, keeping the latest two versions..."
+    paccache -rk2 2>/dev/null || pacman -Sc --noconfirm
+    log "Clearing user thumbnail and temporary caches..."
+    rm -rf "${XDG_CACHE_HOME:-$HOME/.cache}/thumbnails"/* 2>/dev/null || true
+    journalctl --vacuum-time=14d >/dev/null 2>&1 || true
+    ok "Cleanup complete."
+}
+
+cmd_mirror() {
+    need_root "$@"
+    log "Ranking mirrors by transfer speed (this may take a minute)..."
+    reflector --latest 15 --number 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+    ok "Mirror list updated."
+}
+
+cmd_info() {
+    local host kernel desktop shell wine_ver disk root_usage mem
+    host="$(hostname)"
+    kernel="$(uname -sr)"
+    desktop="${XDG_CURRENT_DESKTOP:-KDE}"
+    shell="$(basename "${SHELL:-/bin/bash}")"
+    wine_ver="$(wine --version 2>/dev/null || echo 'not installed')"
+    root_usage="$(df -h / | awk 'NR==2 {print $3 " used / " $2 " (" $5 ")"}')"
+    mem="$(free -h | awk '/^Mem:/ {print $3 " used / " $2}')"
+
+    cat <<EOF
+${C_BOLD}xuan OS${C_RESET} control utility ${XUAN_CTL_VERSION}
+------------------------------------------------
+ Host ........ ${host}
+ Kernel ...... ${kernel}
+ Desktop ..... ${desktop}
+ Shell ....... ${shell}
+ Wine ........ ${wine_ver}
+ Memory ...... ${mem}
+ Root disk ... ${root_usage}
+------------------------------------------------
+EOF
+}
+
+cmd_wine() {
+    local action="${1:-}"
+    local prefix="${WINEPREFIX:-$HOME/.wine}"
+    case "$action" in
+        init)
+            log "Initializing Wine prefix at ${prefix}"
+            WINEPREFIX="$prefix" wineboot --init
+            WINEPREFIX="$prefix" winetricks --unattended fontsmooth=rgb cjkfonts 2>/dev/null || warn "winetricks fonts skipped (network may be unavailable)."
+            ok "Wine prefix ready."
+            ;;
+        reset)
+            warn "This will delete ${prefix}. Type UPPERCASE 'YES' to continue:"
+            read -r confirm
+            [[ "$confirm" == "YES" ]] || die "Aborted."
+            rm -rf "$prefix"
+            WINEPREFIX="$prefix" wineboot --init
+            ok "Wine prefix recreated."
+            ;;
+        shell)
+            WINEPREFIX="$prefix" wineconsole
+            ;;
+        *)
+            die "Usage: xuan-ctl wine {init|reset|shell}"
+            ;;
+    esac
+}
+
+cmd_doctor() {
+    local issues=0
+    log "Running xuan OS health check..."
+
+    if systemctl is-enabled --quiet NetworkManager 2>/dev/null; then
+        ok "NetworkManager: enabled"
+    else
+        warn "NetworkManager is not enabled"; ((issues++)) || true
+    fi
+
+    if systemctl is-active --quiet ufw 2>/dev/null; then
+        ok "Firewall (ufw): active"
+    else
+        warn "Firewall is inactive"; ((issues++)) || true
+    fi
+
+    if command -v wine >/dev/null; then
+        ok "Windows compatibility (Wine): $(wine --version)"
+    else
+        warn "Wine is not installed"; ((issues++)) || true
+    fi
+
+    if [[ -f /etc/sddm.conf.d/00-xuanos-defaults.conf ]] && grep -q 'Autologin' /etc/sddm.conf.d/00-xuanos-defaults.conf; then
+        warn "Live-session auto-login config still present (remove after install)."
+        ((issues++)) || true
+    fi
+
+    local failed_units
+    failed_units="$(systemctl --failed --no-legend | awk '{print $1}')"
+    if [[ -n "$failed_units" ]]; then
+        warn "Failed units: ${failed_units//$'\n'/, }"
+        ((issues++)) || true
+    else
+        ok "No failed systemd units."
+    fi
+
+    if (( issues == 0 )); then
+        ok "All checks passed."
+    else
+        warn "${issues} issue(s) found. Review the warnings above."
+    fi
+}
+
+cmd_firewall() {
+    need_root "$@"
+    ufw status verbose
+}
+
+usage() {
+    cat <<EOF
+${C_BOLD}xuan-ctl${C_RESET} ${XUAN_CTL_VERSION} — xuan OS management
+
+Usage: xuan-ctl <command>
+
+Commands:
+  update     Refresh mirrors and upgrade every package
+  clean      Remove orphans, trim caches and old journals
+  mirror     Re-rank download mirrors by speed
+  info       Show a compact system overview
+  wine ...   Manage the Wine prefix: init | reset | shell
+  firewall   Show firewall status and rules
+  doctor     Run health checks and report misconfiguration
+  version    Print version information
+  help       Show this help
+EOF
+}
+
+main() {
+    mkdir -p "$CONFIG_DIR" "$LOG_DIR"
+    local cmd="${1:-help}"
+    [[ $# -gt 0 ]] && shift || true
+    case "$cmd" in
+        update)   cmd_update "$@" ;;
+        clean)    cmd_clean "$@" ;;
+        mirror)   cmd_mirror "$@" ;;
+        info)     cmd_info ;;
+        wine)     cmd_wine "$@" ;;
+        doctor)   cmd_doctor ;;
+        firewall) cmd_firewall "$@" ;;
+        version)  echo "xuan-ctl ${XUAN_CTL_VERSION}" ;;
+        help|-h|--help) usage ;;
+        *) die "Unknown command: ${cmd}. Run 'xuan-ctl help'." ;;
+    esac
+}
+
+main "$@"

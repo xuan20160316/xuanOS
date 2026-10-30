@@ -1,0 +1,19 @@
+[Default Applications]
+x-scheme-handler/http=firefox.desktop
+x-scheme-handler/https=firefox.desktop
+x-scheme-handler/mailto=userapp-Thunderbird.desktop
+text/html=firefox.desktop
+application/xhtml+xml=firefox.desktop
+application/pdf=org.kde.gwenview.desktop
+image/png=org.kde.gwenview.desktop
+image/jpeg=org.kde.gwenview.desktop
+inode/directory=org.kde.dolphin.desktop
+application/x-dosexec=xuan-winrun.desktop
+application/x-ms-dos-executable=xuan-winrun.desktop
+application/x-msi=xuan-winrun.desktop
+application/x-msdownload=xuan-winrun.desktop
+
+[Added Associations]
+application/x-dosexec=xuan-winrun.desktop;org.kde.dolphin.desktop;
+application/x-msi=xuan-winrun.desktop;
+inode/directory=org.kde.dolphin.desktop;

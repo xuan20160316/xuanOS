@@ -1,0 +1,71 @@
+# xuan OS GRUB gfxterm theme
+# Fonts are generated at build time by scripts/build_assets.sh.
+
+title-color = "#FFFFFF"
+title-font = "xui_bold_24"
+message-color = "#9FC3EC"
+message-font = "xui_regular_14"
+message-bg-color = "#08162E"
+desktop-color = "#08162E"
+desktop-image = "background.png"
+
++ label {
+    text = "xuan OS"
+    color = "#FFFFFF"
+    font = "xui_bold_34"
+    align = "center"
+    top = 140
+}
+
++ label {
+    text = "THE FREEDOM OF LINUX, THE EASE OF WINDOWS"
+    color = "#9FC3EC"
+    font = "xui_regular_15"
+    align = "center"
+    top = 195
+}
+
++ boot_menu {
+    left = 26%
+    width = 48%
+    top = 34%
+    height = 42%
+    item_color = "#C9D8EE"
+    selected_item_color = "#FFFFFF"
+    item_font = "xui_regular_18"
+    selected_item_font = "xui_bold_18"
+    item_height = 38
+    item_padding = 12
+    item_icon_space = 12
+    item_radius = 10
+    selected_item_color = "#FFFFFF"
+    selected_item_bg_color = "#0078D4"
+    icon_width = 24
+    icon_height = 24
+}
+
++ progress_bar {
+    id = "__timeout__"
+    left = 36%
+    width = 28%
+    top = 82%
+    height = 10
+    show_text = false
+    fg_color = "#2AA8FF"
+    bg_color = "#173F73"
+    border_color = "#173F73"
+}
+
++ hbox {
+    top = 92%
+    left = 30%
+    width = 40%
+    height = 28
+    align = "center"
+
+    + label {
+        text = "Use ↑ / ↓ to select, Enter to boot"
+        color = "#7FA3CC"
+        font = "xui_regular_13"
+    }
+}

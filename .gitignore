@@ -1,0 +1,21 @@
+# Build output
+build/
+*.iso
+*.img
+SHA256SUMS.txt
+
+# Generated assets (created by scripts/build_assets.sh)
+overlays/rootfs/usr/share/grub/themes/xuanos/*.pf2
+overlays/rootfs/usr/share/grub/themes/xuanos/background.png
+overlays/rootfs/usr/share/sddm/themes/xuanos/background.png
+overlays/rootfs/usr/share/sddm/themes/xuanos/xuanos-logo.svg
+
+# Editor / OS noise
+*.swp
+*.swo
+*~
+.DS_Store
+.vscode/
+.idea/
+__pycache__/
+*.pyc

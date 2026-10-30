@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+#
+# xuan-winrun — launch Windows binaries through the system Wine prefix.
+# Registered as the handler for application/x-dosexec via mimeapps.list,
+# so double-clicking an .exe/.msi invokes this script automatically.
+#
+set -euo pipefail
+
+readonly LOG_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/xuanos/logs"
+readonly LOG_FILE="${LOG_DIR}/winrun.log"
+export WINEPREFIX="${WINEPREFIX:-$HOME/.wine}"
+export WINEDEBUG="${WINEDEBUG:--all}"
+
+mkdir -p "$LOG_DIR"
+
+usage() {
+    cat <<EOF
+xuan-winrun — run a Windows program on xuan OS
+
+Usage: xuan-winrun [options] <file.exe|file.msi|file.bat> [program arguments...]
+
+Options:
+  -p, --prefix DIR   Use a specific Wine prefix
+  -h, --help         Show this help
+EOF
+}
+
+while (( $# > 0 )); do
+    case "$1" in
+        -p|--prefix)
+            [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 2; }
+            export WINEPREFIX="$2"; shift 2 ;;
+        -h|--help) usage; exit 0 ;;
+        --) shift; break ;;
+        -*) echo "Unknown option: $1" >&2; usage; exit 2 ;;
+        *) break ;;
+    esac
+done
+
+(( $# >= 1 )) || { usage; exit 2; }
+
+target="$1"
+shift || true
+
+if [[ ! -f "$target" ]]; then
+    echo "File not found: ${target}" >&2
+    exit 1
+fi
+
+# Resolve to an absolute path so Wine behaves regardless of the caller's CWD.
+target="$(realpath "$target")"
+workdir="$(dirname "$target")"
+win_path="$(winepath -w "$target" 2>/dev/null || echo "Z:${target}")"
+
+ext="${target##*.}"
+ext_lc="$(printf '%s' "$ext" | tr '[:upper:]' '[:lower:]')"
+
+{
+    echo "----- $(date -Is) -----"
+    echo "prefix=${WINEPREFIX}"
+    echo "target=${target}"
+    echo "win_path=${win_path}"
+} >> "$LOG_FILE"
+
+if [[ ! -d "$WINEPREFIX" ]]; then
+    echo "Initializing Windows compatibility environment on first run..."
+    wineboot --init
+fi
+
+case "$ext_lc" in
+    msi)
+        wine start /unix /d "$workdir" msiexec /i "$win_path" "$@" >> "$LOG_FILE" 2>&1
+        ;;
+    bat|cmd)
+        (cd "$workdir" && wine cmd /c "$win_path" "$@") >> "$LOG_FILE" 2>&1
+        ;;
+    exe|com|scr)
+        wine start /unix /d "$workdir" "$win_path" "$@" >> "$LOG_FILE" 2>&1
+        ;;
+    *)
+        # Fall back to direct execution and let Wine report unsupported types.
+        (cd "$workdir" && wine "$win_path" "$@") >> "$LOG_FILE" 2>&1
+        ;;
+esac
+
+exit_code=$?
+if (( exit_code != 0 )); then
+    echo "The program exited with code ${exit_code}. Details: ${LOG_FILE}" >&2
+fi
+exit "$exit_code"

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Run with xuan Windows Compatibility
+Name[zh_CN]=使用 xuan Windows 兼容层运行
+Exec=xuan-winrun %f
+Icon=xuanos-logo
+Terminal=false
+NoDisplay=true
+MimeType=application/x-dosexec;application/x-ms-dos-executable;application/x-msi;application/x-msdownload;application/x-msdos-program;
+Categories=System;

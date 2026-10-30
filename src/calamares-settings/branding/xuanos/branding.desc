@@ -1,0 +1,26 @@
+componentName:  xuanos
+welcomeStyleCalamares: true
+welcomeExpandingLogo: true
+
+windowExpanding: normal
+windowExpanding: 300
+windowSize: 1024px, 640px
+
+strings:
+    productName:         xuan OS
+    shortProductName:    xuanOS
+    version:             1.0.0
+    shortVersion:        1.0
+    versionedName:       xuan OS 1.0.0
+    shortVersionedName:  xuanOS 1.0
+    bootloaderEntryName: xuan OS
+    productUrl:          https://github.com/xuanos/xuanos
+    supportUrl:          https://github.com/xuanos/xuanos/issues
+    releaseNotesUrl:     https://github.com/xuanos/xuanos/releases
+
+images:
+    productLogo:         xuanos-logo.svg
+    productIcon:         xuanos-logo.svg
+    productWelcome:     xuanos-logo.svg
+
+slideshow:               show.qml

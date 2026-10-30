@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=xuan OS Welcome Center
+Name[zh_CN]=xuan OS 欢迎中心
+Exec=xuan-welcome
+Icon=xuanos-logo
+Terminal=false
+Categories=System;Settings;
+StartupNotify=true
