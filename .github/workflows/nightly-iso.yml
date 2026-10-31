@@ -31,6 +31,19 @@ jobs:
           pacman-key --init
           pacman-key --populate archlinux
 
+      - name: Inspect bundled releng profile
+        run: |
+          echo "== archiso version =="
+          pacman -Q archiso
+          echo "== locate releng =="
+          find / -name profiledef.sh -path '*releng*' 2>/dev/null
+          RELENG=$(dirname "$(find / -path '*configs/releng/profiledef.sh' 2>/dev/null | head -1)")
+          echo "RELENG=$RELENG"
+          echo "== releng tree =="
+          find "$RELENG" -maxdepth 2 | sort
+          echo "== releng profiledef =="
+          cat "$RELENG/profiledef.sh"
+
       - name: Build ISO
         run: ./build.sh
 
