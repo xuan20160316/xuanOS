@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# xuan-ctl — system management utility for xuan OS.
-# Wraps pacman, reflector, wine and ufw behind one predictable interface.
-#
 set -euo pipefail
 
 readonly XUAN_CTL_VERSION="1.1.0"
@@ -10,7 +6,6 @@ readonly CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/xuanos"
 readonly LOG_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/xuanos/logs"
 ORIGINAL_ARGS=()
 
-# ---------------------------------------------------------------- output helpers
 if [[ -t 1 ]]; then
     C_RESET=$'\033[0m'; C_BLUE=$'\033[38;5;32m'; C_GREEN=$'\033[38;5;35m'
     C_YELLOW=$'\033[38;5;214m'; C_RED=$'\033[38;5;196m'; C_BOLD=$'\033[1m'
@@ -34,7 +29,6 @@ pacman_running() {
     pgrep -x pacman >/dev/null || pgrep -f 'mkarchiso' >/dev/null
 }
 
-# ---------------------------------------------------------------- commands
 cmd_update() {
     need_root "$@"
     pacman_running && die "Another package operation is in progress. Wait for it to finish."
@@ -57,7 +51,6 @@ cmd_clean() {
     local orphans
     orphans="$(pacman -Qdtq 2>/dev/null || true)"
     if [[ -n "$orphans" ]]; then
-        # shellcheck disable=SC2086
         pacman -Rns --noconfirm $orphans
     else
         ok "No orphan packages found."

@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-#
-# publish_release.sh — stage a built ISO into the update site and regenerate
-# manifest.json with real size and SHA-256 values.
-#
-# Usage:
-#   scripts/publish_release.sh <path-to.iso> <version> [notes.txt]
-#
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

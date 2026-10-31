@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-#
-# xuan-updater — OTA client for xuan OS.
-# Two modes:
-#   check  silent background check, emits a desktop notification on update
-#   gui    full window with release notes, package update and ISO download
-#
 import hashlib
 import json
 import os
@@ -103,7 +97,7 @@ def run_check() -> int:
     current = local_version()
     try:
         manifest = fetch_manifest(url)
-    except Exception as exc:  # network must never break the boot session
+    except Exception as exc:
         log_line(f"check failed: {exc}")
         return 0
 

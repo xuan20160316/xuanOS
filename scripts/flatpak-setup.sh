@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# flatpak-setup.sh — register Flathub as a system-wide Flatpak remote and
-# refresh the AppStream metadata so software centers can list its catalog.
-#
 set -euo pipefail
 
 die() { echo "error: $*" >&2; exit 1; }

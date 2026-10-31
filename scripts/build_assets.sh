@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# build_assets.sh — rasterize SVG artwork and generate GRUB fonts.
-# Runs on the build host before mkarchiso.
-#
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

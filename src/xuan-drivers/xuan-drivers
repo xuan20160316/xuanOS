@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-#
-# xuan-drivers — hardware detection and driver installation for xuan OS.
-# Recommends open-source drivers by default and only offers proprietary
-# blobs where the hardware vendor does not provide a usable open alternative.
-#
 set -euo pipefail
 
 readonly DRIVERS_VERSION="1.1.0"
@@ -27,7 +22,6 @@ lspci_lines() {
     lspci 2>/dev/null || true
 }
 
-# ---------------------------------------------------------------- detection
 detect_gpu() {
     local line lowered
     while IFS= read -r line; do
@@ -74,11 +68,9 @@ detect_printers() {
     fi
 }
 
-# ---------------------------------------------------------------- recommendations
 gpu_packages() {
     case "$1" in
         nvidia)
-            # Prefer the open NVIDIA kernel module where supported.
             echo "nvidia nvidia-utils lib32-nvidia-utils nvidia-settings"
             ;;
         amd)
@@ -124,7 +116,6 @@ recommend() {
 EOF
 }
 
-# ---------------------------------------------------------------- installation
 elevate() {
     if (( EUID == 0 )); then
         return 0

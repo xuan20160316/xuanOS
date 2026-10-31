@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-#
-# xuan_welcome — first-run welcome center for xuan OS.
-# Detects the live environment and exposes the most common post-boot tasks
-# in a single Windows-style panel.
-#
 import os
 import shutil
 import subprocess

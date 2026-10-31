@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# build.sh — one-command entry point that produces a bootable xuan OS ISO.
-# Tested on an up-to-date Arch Linux build host with the archiso package.
-#
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

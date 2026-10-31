@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# apply_overlays.sh — stage overlays and original sources into the
-# archiso airootfs so mkarchiso can squash them into the image.
-#
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

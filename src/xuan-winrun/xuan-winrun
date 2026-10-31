@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-#
-# xuan-winrun — launch Windows binaries through the system Wine prefix.
-# Registered as the handler for application/x-dosexec via mimeapps.list,
-# so double-clicking an .exe/.msi invokes this script automatically.
-#
 set -euo pipefail
 
 readonly LOG_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/xuanos/logs"
@@ -47,7 +42,6 @@ if [[ ! -f "$target" ]]; then
     exit 1
 fi
 
-# Resolve to an absolute path so Wine behaves regardless of the caller's CWD.
 target="$(realpath "$target")"
 workdir="$(dirname "$target")"
 win_path="$(winepath -w "$target" 2>/dev/null || echo "Z:${target}")"
@@ -78,7 +72,6 @@ case "$ext_lc" in
         wine start /unix /d "$workdir" "$win_path" "$@" >> "$LOG_FILE" 2>&1
         ;;
     *)
-        # Fall back to direct execution and let Wine report unsupported types.
         (cd "$workdir" && wine "$win_path" "$@") >> "$LOG_FILE" 2>&1
         ;;
 esac

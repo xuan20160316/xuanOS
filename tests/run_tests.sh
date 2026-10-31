@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-#
-# run_tests.sh — static validation suite for the xuan OS source tree.
-# Does not require root or a full Arch host; safe to run in CI.
-#
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
