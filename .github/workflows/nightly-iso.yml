@@ -2,7 +2,6 @@ name: Nightly ISO
 
 on:
   schedule:
-    # 18:00 UTC == 02:00 CST the next calendar day.
     - cron: '0 18 * * *'
   workflow_dispatch:
     inputs:
