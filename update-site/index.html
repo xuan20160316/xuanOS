@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xuan OS — 下载与更新</title>
+<meta name="description" content="xuan OS 官方下载与更新页面：兼具 Linux 的自由与 Windows 的易用。">
+<link rel="icon" href="assets/xuanos-logo.svg">
+<style>
+:root {
+  --accent: #0078d4;
+  --accent-hover: #1a86d8;
+  --bg: #f3f6fb;
+  --surface: #ffffff;
+  --ink: #1b2738;
+  --muted: #5a6b82;
+  --line: #dce3ee;
+  --deep: #08162e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--ink); background: var(--bg); line-height: 1.6;
+}
+a { color: var(--accent); text-decoration: none; }
+.container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, #0e2a52 0%, #0078d4 100%);
+  color: #fff; padding: 72px 0 84px;
+}
+.hero .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+.hero .brand img { width: 52px; height: 52px; }
+.hero .brand span { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+.hero h1 { font-size: 44px; font-weight: 800; margin-bottom: 14px; }
+.hero p.lead { font-size: 18px; color: #c9d8ee; max-width: 640px; }
+.hero .meta { margin: 26px 0 30px; font-size: 15px; color: #e6effa; }
+.badge {
+  display: inline-block; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3);
+  border-radius: 999px; padding: 4px 14px; font-size: 13px; margin-right: 10px;
+}
+.btn {
+  display: inline-block; background: #fff; color: var(--accent); font-weight: 700;
+  padding: 14px 34px; border-radius: 12px; font-size: 16px; transition: transform .15s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn.ghost {
+  background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.55); margin-left: 14px;
+}
+
+/* Sections */
+section { padding: 60px 0; }
+h2 { font-size: 26px; margin-bottom: 24px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px;
+}
+.card h3 { font-size: 17px; margin-bottom: 8px; }
+.card p { color: var(--muted); font-size: 14px; }
+
+/* Release notes */
+.notes { list-style: none; }
+.notes li {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 18px; margin-bottom: 10px; font-size: 15px;
+}
+.notes li::before { content: "— "; color: var(--accent); font-weight: 700; }
+
+/* Verify table */
+table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 14px; overflow: hidden; }
+th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 14px; }
+th { background: #eef3fa; font-weight: 700; }
+code {
+  background: #eef3fa; padding: 3px 8px; border-radius: 6px;
+  font-family: "JetBrains Mono", Consolas, monospace; font-size: 13px; word-break: break-all;
+}
+footer { background: var(--deep); color: #9fc3ec; padding: 36px 0; font-size: 14px; }
+footer a { color: #c9d8ee; }
+@media (max-width: 760px) {
+  .grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 32px; }
+  .btn.ghost { margin: 12px 0 0; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="brand">
+      <img src="assets/xuanos-logo.svg" alt="xuan OS logo">
+      <span>xuan OS</span>
+    </div>
+    <h1>兼具 Linux 的自由，Windows 的易用</h1>
+    <p class="lead">开源桌面操作系统。滚动内核保持最新，Wine 兼容层让 Windows 程序开箱即用。</p>
+    <div class="meta" id="hero-meta">正在读取最新版本信息…</div>
+    <a class="btn" id="download-btn" href="#" download>下载最新 ISO</a>
+    <a class="btn ghost" href="#verify">查看校验信息</a>
+  </div>
+</header>
+
+<section class="container">
+  <h2>为什么选择 xuan OS</h2>
+  <div class="grid">
+    <div class="card"><h3>滚动且最新</h3><p>基于 Arch 滚动内核，安全补丁与硬件支持第一时间到达，无需等待大版本。</p></div>
+    <div class="card"><h3>Windows 兼容</h3><p>双击 exe 即经 Wine 运行，Bottles 管理隔离环境，Proton 支持游戏。</p></div>
+    <div class="card"><h3>安全默认</h3><p>防火墙默认启用、签名仓库、最小权限与漏洞跟踪，开箱即处于安全基线。</p></div>
+  </div>
+</section>
+
+<section class="container">
+  <h2>本次更新内容</h2>
+  <ul class="notes" id="release-notes"><li>加载中…</li></ul>
+</section>
+
+<section class="container" id="verify">
+  <h2>下载与校验</h2>
+  <table>
+    <thead><tr><th>文件</th><th>大小</th><th>SHA-256</th></tr></thead>
+    <tbody id="verify-body"><tr><td colspan="3">加载中…</td></tr></tbody>
+  </table>
+  <p style="margin-top:16px;color:var(--muted);font-size:14px">
+    下载后请校验：<code>sha256sum -c SHA256SUMS.txt</code>，确认与上表一致后再写入 U 盘。
+  </p>
+</section>
+
+<section class="container">
+  <h2>制作启动盘</h2>
+  <div class="card">
+    <p>推荐使用 Ventoy 直接放入 ISO；或在 Linux 下执行
+      <code>sudo dd if=镜像.iso of=/dev/sdX bs=4M status=progress conv=fsync</code>；
+      Windows 下 Rufus 选择 DD 模式。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    xuan OS 采用 MIT 许可证发布原创代码，所集成组件遵循各自开源许可证。
+    本页面由静态文件托管，更新清单见 <a href="manifest.json">manifest.json</a>。
+  </div>
+</footer>
+
+<script>
+function formatSize(bytes) {
+  if (!bytes || bytes <= 0) return "待发布";
+  const units = ["B", "KB", "MB", "GB"];
+  let i = 0;
+  while (bytes >= 1024 && i < units.length - 1) { bytes /= 1024; i++; }
+  return bytes.toFixed(i === 0 ? 0 : 2) + " " + units[i];
+}
+
+async function load() {
+  try {
+    const res = await fetch("manifest.json", { cache: "no-store" });
+    const data = await res.json();
+    const latest = data.latest;
+
+    document.getElementById("hero-meta").innerHTML =
+      '<span class="badge">最新版本 ' + latest.version + '</span>' +
+      '<span class="badge">发布于 ' + latest.release_date + '</span>' +
+      '<span class="badge">通道：' + data.channel + '</span>';
+
+    const btn = document.getElementById("download-btn");
+    btn.href = latest.iso.url;
+    btn.setAttribute("download", latest.iso.filename);
+
+    document.getElementById("release-notes").innerHTML =
+      latest.release_notes.map(n => "<li>" + n + "</li>").join("");
+
+    document.getElementById("verify-body").innerHTML =
+      "<tr><td>" + latest.iso.filename + "</td>" +
+      "<td>" + formatSize(latest.iso.size) + "</td>" +
+      "<td><code>" + latest.iso.sha256 + "</code></td></tr>";
+  } catch (err) {
+    document.getElementById("hero-meta").textContent = "版本清单暂时无法加载，请稍后重试。";
+  }
+}
+load();
+</script>
+</body>
+</html>

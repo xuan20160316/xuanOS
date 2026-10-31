@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=xuan OS Update Check
+Name[zh_CN]=xuan OS 更新检查
+Exec=xuan-updater check
+Icon=xuanos-logo
+Terminal=false
+NoDisplay=true
+X-KDE-autostart-phase=2
+X-KDE-autostart-after=panel

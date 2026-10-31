@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=xuan OS Updater
+Name[zh_CN]=xuan OS 更新器
+Exec=xuan-updater gui
+Icon=xuanos-logo
+Terminal=false
+Categories=System;Settings;

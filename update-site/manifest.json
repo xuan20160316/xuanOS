@@ -1,0 +1,35 @@
+{
+  "project": "xuanOS",
+  "channel": "stable",
+  "schema_version": 1,
+  "generated_at": "2026-10-31T08:00:00+08:00",
+  "latest": {
+    "version": "1.1.0",
+    "release_date": "2026-10-31",
+    "min_client_version": "1.0.0",
+    "iso": {
+      "filename": "xuanos-1.1.0-x86_64.iso",
+      "url": "releases/xuanos-1.1.0-x86_64.iso",
+      "size": 0,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "package_update": {
+      "method": "pacman",
+      "command": "xuan-ctl update",
+      "requires_reboot": false
+    },
+    "release_notes": [
+      "新增 xuan-drivers 硬件驱动管理器",
+      "xuan-ctl 增加服务、快照与电源模式管理",
+      "补全 Calamares 安装器全部模块，支持 LUKS 加密",
+      "接入在线更新检查与 Flatpak/Flathub 生态"
+    ]
+  },
+  "history": [
+    {
+      "version": "1.0.0",
+      "release_date": "2026-10-30",
+      "notes": ["首个可构建版本", "Win11 风格 Plasma 桌面", "Wine 兼容层"]
+    }
+  ]
+}

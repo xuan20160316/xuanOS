@@ -15,6 +15,7 @@ echo '==> Installing xuan OS tools'
 install -Dm755 "$ROOT/src/xuan-ctl/xuan-ctl" "$AIROOTFS/usr/bin/xuan-ctl"
 install -Dm755 "$ROOT/src/xuan-winrun/xuan-winrun" "$AIROOTFS/usr/bin/xuan-winrun"
 install -Dm755 "$ROOT/src/xuan-drivers/xuan-drivers" "$AIROOTFS/usr/bin/xuan-drivers"
+install -Dm755 "$ROOT/src/xuan-updater/xuan-updater" "$AIROOTFS/usr/bin/xuan-updater"
 install -Dm755 "$ROOT/src/xuan-welcome/xuan_welcome.py" "$AIROOTFS/usr/bin/xuan-welcome"
 
 echo '==> Installing Calamares configuration'

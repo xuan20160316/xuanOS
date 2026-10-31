@@ -113,17 +113,19 @@ cd xuanos
 xuanos/
 ├── build.sh                 一键构建入口
 ├── .github/workflows/       CI 静态检查与 nightly ISO 构建
+├── update-site/             更新分发网站（页面、manifest、安装包）
 ├── iso-profile/             archiso 工程（包清单、pacman、chroot 脚本）
 ├── overlays/rootfs/         根文件系统覆盖层（桌面配置、品牌、主题）
 ├── src/
 │   ├── xuan-ctl/            系统管理 CLI（更新/服务/快照/电源）
 │   ├── xuan-winrun/         Windows 程序启动器
 │   ├── xuan-drivers/        硬件检测与驱动安装
+│   ├── xuan-updater/        OTA 客户端（开机检查/通知/下载）
 │   ├── xuan-welcome/        PySide6 欢迎中心
 │   └── calamares-settings/  图形安装器配置与品牌
-├── scripts/                 资源生成、overlay 同步、Flatpak 初始化
+├── scripts/                 资源生成、overlay 同步、发布、Flatpak 初始化
 ├── tests/                   静态校验测试套件
-└── docs/                    架构、构建、路线图与安全文档
+└── docs/                    架构、构建、更新与安全文档
 ```
 
 ---
@@ -132,6 +134,7 @@ xuanos/
 
 - [系统架构](docs/ARCHITECTURE.md)
 - [构建指南](docs/BUILD.md)
+- [OTA 在线更新机制](docs/OTA_UPDATES.md)
 - [Windows 兼容说明](docs/WINDOWS_COMPAT.md)
 - [安全设计](docs/SECURITY.md)
 - [开发路线图](docs/ROADMAP.md)

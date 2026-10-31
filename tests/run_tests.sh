@@ -19,11 +19,19 @@ report() {
     fi
 }
 
-echo '==> Bash syntax'
-mapfile -t bash_scripts < <(find "$ROOT" -type f \( -name '*.sh' -o -name 'xuan-ctl' -o -name 'xuan-winrun' -o -name 'xuan-drivers' -o -name 'customize_airootfs.sh' -o -name 'profiledef.sh' \) -not -path '*/build/*' -not -path '*/.git/*')
-for script in "${bash_scripts[@]}"; do
-    bash -n "$script"
-    report $? "syntax: ${script#"$ROOT"/}"
+echo '==> Script syntax (dispatched by shebang)'
+mapfile -t all_scripts < <(find "$ROOT" -type f \( -name '*.sh' -o -name 'xuan-ctl' -o -name 'xuan-winrun' -o -name 'xuan-drivers' -o -name 'xuan-updater' -o -name 'customize_airootfs.sh' -o -name 'profiledef.sh' \) -not -path '*/build/*' -not -path '*/.git/*' | sort)
+bash_scripts=()
+for script in "${all_scripts[@]}"; do
+    rel="${script#"$ROOT"/}"
+    if head -n1 "$script" | grep -q 'python'; then
+        python3 -m py_compile "$script"
+        report $? "python compile: ${rel}"
+    else
+        bash -n "$script"
+        report $? "bash syntax: ${rel}"
+        bash_scripts+=("$script")
+    fi
 done
 
 if command -v shellcheck >/dev/null; then
@@ -37,6 +45,10 @@ fi
 echo '==> Python syntax'
 python3 -m py_compile "$ROOT/src/xuan-welcome/xuan_welcome.py"
 report $? "python compile: xuan_welcome.py"
+
+echo '==> Update site JSON'
+python3 -c "import json; json.load(open('$ROOT/update-site/manifest.json', encoding='utf-8'))"
+report $? "manifest.json parses"
 
 echo '==> YAML module configs'
 if python3 -c 'import yaml' 2>/dev/null; then
@@ -70,8 +82,15 @@ required=(
     "src/xuan-ctl/xuan-ctl"
     "src/xuan-winrun/xuan-winrun"
     "src/xuan-drivers/xuan-drivers"
+    "src/xuan-updater/xuan-updater"
     "src/xuan-welcome/xuan_welcome.py"
     "src/calamares-settings/modules/unpackfs.conf"
+    "overlays/rootfs/etc/xuanos/updater.conf"
+    "overlays/rootfs/etc/xuanos-release"
+    "overlays/rootfs/etc/xdg/autostart/xuan-updater-check.desktop"
+    "update-site/index.html"
+    "update-site/manifest.json"
+    "scripts/publish_release.sh"
     ".github/workflows/ci.yml"
     ".github/workflows/nightly-iso.yml"
     "scripts/flatpak-setup.sh"
