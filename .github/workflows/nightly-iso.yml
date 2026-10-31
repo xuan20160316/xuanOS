@@ -33,14 +33,12 @@ jobs:
 
       - name: Inspect bundled releng profile
         run: |
+          set +e
           echo "== archiso version =="
           pacman -Q archiso
-          echo "== locate releng =="
-          find / -name profiledef.sh -path '*releng*' 2>/dev/null
-          RELENG=$(dirname "$(find / -path '*configs/releng/profiledef.sh' 2>/dev/null | head -1)")
-          echo "RELENG=$RELENG"
+          RELENG=/usr/share/archiso/configs/releng
           echo "== releng tree =="
-          find "$RELENG" -maxdepth 2 | sort
+          find "$RELENG" | sort
           echo "== releng profiledef =="
           cat "$RELENG/profiledef.sh"
 
