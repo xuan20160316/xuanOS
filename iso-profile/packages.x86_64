@@ -1,8 +1,4 @@
-# xuan OS package manifest
-# One package or package group per line. Official Arch repositories only.
-# Lines beginning with # are comments.
 
-# ---------------------------------------------------------------- base system
 base
 base-devel
 linux
@@ -52,8 +48,6 @@ zip
 unzip
 p7zip
 unrar
-
-# ---------------------------------------------------------------- boot & disks
 grub
 syslinux
 efibootmgr
@@ -74,8 +68,6 @@ parted
 gparted
 partitionmanager
 fsarchiver
-
-# ---------------------------------------------------------------- network
 NetworkManager
 network-manager-applet
 networkmanager-openvpn
@@ -92,8 +84,6 @@ gvfs-mtp
 gvfs-nfs
 gvfs-smb
 samba
-
-# ---------------------------------------------------------------- graphics stack
 xorg-server
 xorg-xwayland
 xorg-xinit
@@ -131,8 +121,6 @@ gst-plugins-good
 gst-plugins-bad
 gst-plugins-ugly
 gst-plugin-pipewire
-
-# ---------------------------------------------------------------- KDE Plasma 6
 plasma-meta
 plasma-workspace
 plasma-desktop
@@ -163,8 +151,6 @@ xdg-utils
 xdg-user-dirs
 baloo
 kfilemetadata
-
-# ---------------------------------------------------------------- KDE applications
 dolphin
 konsole
 kate
@@ -181,8 +167,6 @@ kfind
 print-manager
 skanpage
 sweeper
-
-# ---------------------------------------------------------------- applications
 firefox
 firefox-i18n-zh-cn
 vlc
@@ -191,8 +175,6 @@ cups
 system-config-printer
 bluez
 bluez-utils
-
-# ---------------------------------------------------------------- Windows compatibility
 wine
 wine-mono
 wine_gecko
@@ -223,8 +205,6 @@ lib32-mpg123
 lib32-vulkan-icd-loader
 lib32-vulkan-radeon
 lib32-vulkan-intel
-
-# ---------------------------------------------------------------- fonts
 fontconfig
 freetype2
 noto-fonts
@@ -237,8 +217,6 @@ ttf-bitstream-vera
 inter-font
 ttf-jetbrains-mono
 gnu-free-fonts
-
-# ---------------------------------------------------------------- input methods
 fcitx5
 fcitx5-chinese-addons
 fcitx5-configtool
@@ -246,15 +224,11 @@ fcitx5-qt
 fcitx5-gtk
 fcitx5-lua
 fcitx5-material-color
-
-# ---------------------------------------------------------------- security
 ufw
 gufw
 polkit
 polkit-agent
 seahorse
-
-# ---------------------------------------------------------------- xuan OS runtime
 python
 python-pip
 python-pyside6

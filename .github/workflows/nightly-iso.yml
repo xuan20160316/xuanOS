@@ -26,7 +26,8 @@ jobs:
       - name: Install build toolchain
         run: |
           pacman -Syu --noconfirm --needed \
-            archiso rsync librsvg grub fontconfig freetype2 bash
+            archiso rsync librsvg grub fontconfig freetype2 bash \
+            inter-font ttf-jetbrains-mono
           pacman-key --init
           pacman-key --populate archlinux
 

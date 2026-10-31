@@ -1,6 +1,3 @@
-# xuan OS GRUB gfxterm theme
-# Fonts are generated at build time by scripts/build_assets.sh.
-
 title-color = "#FFFFFF"
 title-font = "xui_bold_24"
 message-color = "#9FC3EC"
