@@ -46,6 +46,23 @@ jobs:
           echo "== iso-profile after sync =="
           find iso-profile -maxdepth 2 | sort
 
+      - name: Diagnose package databases
+        run: |
+          set +e
+          echo "== active mirrorlist servers =="
+          grep -vE '^\s*#|^\s*$' /etc/pacman.d/mirrorlist | head -8
+          echo "== sync db files before =="
+          ls -lh /var/lib/pacman/sync/ 2>/dev/null
+          echo "== explicit -Sy using profile conf =="
+          pacman -Sy --config iso-profile/pacman.conf
+          echo "== sync db files after =="
+          ls -lh /var/lib/pacman/sync/
+          echo "== query problem packages =="
+          for p in NetworkManager dxvk calamares lib32-openal pyside6 polkit; do
+            echo "-- $p"
+            pacman -Si --config iso-profile/pacman.conf "$p" 2>&1 | head -2
+          done
+
       - name: Build ISO
         run: ./build.sh
 
