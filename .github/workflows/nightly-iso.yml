@@ -31,16 +31,20 @@ jobs:
           pacman-key --init
           pacman-key --populate archlinux
 
-      - name: Inspect bundled releng profile
+      - name: Align boot configs from releng
         run: |
           set +e
-          echo "== archiso version =="
-          pacman -Q archiso
           RELENG=/usr/share/archiso/configs/releng
-          echo "== releng tree =="
-          find "$RELENG" | sort
-          echo "== releng profiledef =="
-          cat "$RELENG/profiledef.sh"
+          pacman -Q archiso
+          for item in syslinux grub efiboot bootstrap_packages; do
+            if [ -e "$RELENG/$item" ]; then
+              rm -rf "iso-profile/$item"
+              cp -a "$RELENG/$item" "iso-profile/"
+              echo "synced $item"
+            fi
+          done
+          echo "== iso-profile after sync =="
+          find iso-profile -maxdepth 2 | sort
 
       - name: Build ISO
         run: ./build.sh
