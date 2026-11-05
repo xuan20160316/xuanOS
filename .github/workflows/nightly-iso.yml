@@ -69,12 +69,34 @@ jobs:
             build/out/SHA256SUMS.txt
           retention-days: 14
 
+      - name: Split ISO for GitHub release limit
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_release
+        run: |
+          iso=$(find build/out -name '*.iso' | head -n1)
+          base=$(basename "$iso")
+          split -b 1900M -d -a 2 "$iso" "build/out/${base}.part"
+          (cd build/out && sha256sum "${base}".part* > "${base}.parts.sha256")
+          printf 'xuan OS ISO split archive\n\nReassemble on Linux or macOS:\n\n  cat %s.part* > %s\n\nThen verify:\n\n  sha256sum -c %s.parts.sha256\n' "$base" "$base" "$base" > build/out/REASSEMBLE.txt
+          ls -lh build/out
+
       - name: Publish nightly pre-release
         if: github.event_name == 'workflow_dispatch' && inputs.publish_release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: nightly-${{ github.run_number }}
           prerelease: true
-          name: xuan OS nightly
+          name: xuan OS nightly ${{ github.run_number }}
+          body: |
+            xuan OS nightly build.
+
+            This ISO exceeds GitHub's 2 GB per-file release limit, so it is published as split parts.
+            Download every `.part` file and the checksum, then run:
+
+                cat xuanos-*.iso.part* > xuanos.iso
+
+            Write it to a USB drive with `dd` or use it in a virtual machine.
           files: |
-            build/out/*.iso
+            build/out/*.part*
+            build/out/*.parts.sha256
+            build/out/REASSEMBLE.txt
             build/out/SHA256SUMS.txt
