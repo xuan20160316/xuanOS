@@ -68,12 +68,12 @@ parted
 gparted
 partitionmanager
 fsarchiver
-NetworkManager
+networkmanager
 network-manager-applet
 networkmanager-openvpn
 networkmanager-pptp
 networkmanager-vpnc
-ModemManager
+modemmanager
 usb_modeswitch
 iw
 wpa_supplicant
@@ -107,7 +107,6 @@ xf86-video-ati
 xf86-video-intel
 xf86-video-nouveau
 xf86-video-vesa
-xf86-video-vmware
 xf86-input-libinput
 pipewire
 pipewire-alsa
@@ -227,11 +226,10 @@ fcitx5-material-color
 ufw
 gufw
 polkit
-polkit-agent
 seahorse
 python
 python-pip
-python-pyside6
+pyside6
 python-yaml
 python-dasbus
 flatpak
