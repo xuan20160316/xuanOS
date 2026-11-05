@@ -145,7 +145,6 @@ polkit-kde-agent
 xdg-desktop-portal
 xdg-desktop-portal-kde
 phonon-qt6
-phonon-qt6-gstreamer
 xdg-utils
 xdg-user-dirs
 baloo
@@ -169,7 +168,6 @@ sweeper
 firefox
 firefox-i18n-zh-cn
 vlc
-calamares
 cups
 system-config-printer
 bluez
@@ -178,10 +176,8 @@ wine
 wine-mono
 wine_gecko
 winetricks
-bottles
 lutris
 steam
-dxvk
 vkd3d
 lib32-mesa
 lib32-util-linux
@@ -196,11 +192,8 @@ lib32-libxinerama
 lib32-libxss
 lib32-libxxf86vm
 lib32-libglvnd
-lib32-gst-plugins-base
-lib32-openal
 lib32-freetype2
 lib32-gnutls
-lib32-mpg123
 lib32-vulkan-icd-loader
 lib32-vulkan-radeon
 lib32-vulkan-intel
