@@ -32,7 +32,10 @@ ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 printf 'xuanos-live\n' > /etc/hostname
 printf '127.0.0.1   localhost\n::1         localhost\n127.0.1.1   xuanos-live.localdomain xuanos-live\n' > /etc/hosts
 
-systemd-sysusers /usr/lib/sysusers.d/xuanos-live.conf
+systemd-sysusers /usr/lib/sysusers.d/xuanos-live.conf 2>/dev/null || true
+if ! id -u xuan >/dev/null 2>&1; then
+    useradd -m -u 1000 -U -s /bin/bash -c "xuan OS live user" xuan
+fi
 id xuan >/dev/null
 
 for grp in wheel power audio video storage optical network lp scanner input; do
